@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitea-service
+  namespace: jenkins
+  annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/path:   /
+      prometheus.io/port:   '22'
+spec:
+  selector: 
+    app: gitea
+    app: jenkins-server
+  type: ClusterIP
+  ports:
+  - name: git-ssh
+    port: 22
+    targetPort: 22

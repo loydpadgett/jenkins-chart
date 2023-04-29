@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea
+  template:
+    metadata:
+      labels:
+        app: gitea
+    spec:
+      containers:
+      - name: gitea
+        image: gitea/gitea:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        ports:
+          - name: gitea-app
+            containerPort: 3000
+          
+          - name: git-ssh
+            containerPort: 22
+
+          - name: git-ssh-out
+            containerPort: 22
+
+        livenessProbe:
+          httpGet:
+            path: /api/healthz
+            port: 3000
+          initialDelaySeconds: 200
+          timeoutSeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 10
+
+        volumeMounts:
+          - name: gitea-data
+            mountPath: /data
+
+          - name: gitea-avatar
+            mountPath: /data/gitea/avatars/me.jpg
+          
+          - name: config
+            mountPath: /data/gitea/conf/
+            readOnly: false
+            
+      volumes:
+        - name: gitea-data
+          hostPath:
+            path: /Users/loyd.padgett/git/jenkins/gitea-app/data
+        
+        - name: gitea-avatar
+          hostPath:
+            path: /Users/loyd.padgett/git/jenkins/configs/me.jpg
+            
+        - name: config
+          configMap:
+            name: gitea-config
+            items:
+            - key: app.ini
+              path: app.ini
