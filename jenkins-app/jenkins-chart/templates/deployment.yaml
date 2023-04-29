@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins-server
+  template:
+    metadata:
+      labels:
+        app: jenkins-server
+    spec:
+      securityContext:
+            fsGroup: 1000 
+            runAsUser: 1000
+      serviceAccountName: jenkins-admin
+      containers:
+        - name: jenkins
+          image: jenkins/jenkins:lts
+          imagePullPolicy: Never
+          resources:
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+            requests:
+              memory: "500Mi"
+              cpu: "200m"
+          ports:
+            {{- with .Values.service.http }}
+            - name: {{ .name }} 
+              containerPort: {{ .port }}
+            {{- end }}
+            {{- with .Values.service.jnlp }}
+            - name: {{ .name }}
+              containerPort: {{ .port }} 
+            {{- end }}
+          {{- with .Values.livenessProbe.httpGet }}
+          livenessProbe:
+            httpGet:
+              path: {{ .path }} 
+              port: {{ .port }} 
+          {{- end }}
+          {{- with .Values.livenessProbe.httpGet }}
+            initialDelaySeconds: {{ .initialDelaySeconds }} 
+            periodSeconds: {{ .periodSeconds }} 
+            timeoutSeconds: {{ .timeoutSeconds }}
+            failureThreshold: {{ .failureThreshold }}  
+          {{- end }}
+
+          readinessProbe:
+            httpGet:
+              path: "/login"
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          volumeMounts:
+            - name: jenkins-data
+              mountPath: /var/jenkins_home         
+      volumes:
+      - name: jenkins-data
+        hostPath:
+          path: /Users/loyd.padgett/git/jenkins/jenkins-app/data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
