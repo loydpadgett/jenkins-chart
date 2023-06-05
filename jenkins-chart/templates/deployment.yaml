@@ -4,7 +4,7 @@ metadata:
   name: jenkins
   namespace: jenkins
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: jenkins-server
@@ -14,25 +14,29 @@ spec:
         app: jenkins-server
     spec:
       securityContext:
-            fsGroup: 1000 
-            runAsUser: 1000
-      serviceAccountName: jenkins-admin
+        {{ .Values.podSecurityContext.fsGroup }}
+        {{ .Values.securityContext.runAsUser indent 8 }}
+      serviceAccountName: {{ .Values.securityAccountName }}
       containers:
         - name: jenkins
-          image: jenkins/jenkins:lts
-          imagePullPolicy: Never
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          {{- with .Values.resources }}
           resources:
             limits:
-              memory: "1Gi"
-              cpu: "500m"
+              memory: {{ .limits.memory }}
+              cpu: {{ .limits.cpu }}
             requests:
-              memory: "500Mi"
-              cpu: "200m"
+              memory: {{ .requests.memory }}
+              cpu: {{ .requests.cpu }}
+          {{- end }}
           ports:
             {{- with .Values.service.http }}
             - name: {{ .name }} 
               containerPort: {{ .port }}
             {{- end }}
+
             {{- with .Values.service.jnlp }}
             - name: {{ .name }}
               containerPort: {{ .port }} 
@@ -43,7 +47,7 @@ spec:
               path: {{ .path }} 
               port: {{ .port }} 
           {{- end }}
-          {{- with .Values.livenessProbe.httpGet }}
+          {{- with .Values.livenessProbe }}
             initialDelaySeconds: {{ .initialDelaySeconds }} 
             periodSeconds: {{ .periodSeconds }} 
             timeoutSeconds: {{ .timeoutSeconds }}
