@@ -5,10 +5,17 @@
 replicaCount: 1
 
 image:
+<<<<<<< HEAD
   repository: jenkins/jenkins
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "lts"
+=======
+  repository: nginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+>>>>>>> 741f1672f94fa352633fd7370410b39bc107f443
 
 imagePullSecrets: []
 nameOverride: ""
@@ -21,6 +28,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
+<<<<<<< HEAD
   name: "jenkins-admin"
 
 podAnnotations: {}
@@ -29,10 +37,21 @@ podSecurityContext:
   fsGroup: 1000
 
 securityContext:
+=======
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+>>>>>>> 741f1672f94fa352633fd7370410b39bc107f443
   # capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
+<<<<<<< HEAD
 #  fsGroup: 1000
   runAsUser: 1000
 securityAccountName: jenkins-admin
@@ -62,6 +81,15 @@ readinessProbe:
   timeoutSeconds: 5
   failureThreshold: 3
   
+=======
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+>>>>>>> 741f1672f94fa352633fd7370410b39bc107f443
 ingress:
   enabled: false
   className: ""
@@ -78,6 +106,7 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+<<<<<<< HEAD
 resources:
   limits:
     cpu: 1Gi
@@ -85,6 +114,19 @@ resources:
   requests:
     cpu: 500mi
     memory: 200m
+=======
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+>>>>>>> 741f1672f94fa352633fd7370410b39bc107f443
 
 autoscaling:
   enabled: false
