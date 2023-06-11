@@ -6,12 +6,12 @@ spec:
   destination:
     namespace: jenkins
     server: https://kubernetes.default.svc
-  project: default
+  project: jenkins
   source:
     path: jenkins-chart/
     repoURL: https://github.com/loydpadgett/jenkins-chart.git
     targetRevision: main
   syncPolicy:
     automated:
-      prune: true
+      prune: false
       selfHeal: true

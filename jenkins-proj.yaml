@@ -1,17 +1,21 @@
+---
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: AppProject
 metadata:
-  name: argocd
-spec: 
-  destination:
-    namespace: argocd
-    server: https://kubernetes.default.svc
-  project: argocd
-  source:
-    path: argo-cd/kustomize/
-    repoURL: https://github.com/loydpadgett/argoCD.git
-    targetRevision: main
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+  name: jenkins
+spec:
+  roles:
+    - name: read-sync
+      description: read and sync privileges.
+      policies:
+        - p, proj:jenkins:read-sync, applications, get, jenkins/*, allow
+        - p, proj:jenkins:read-sync, applications, sync, jenkins/*, allow
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  description: Project to configure my own personalized jenkins installation with Argocd
+  destinations:
+    - namespace: jenkins
+      server: https://kubernetes.default.svc
+  sourceRepos:
+    - https://github.com/loydpadgett/jenkins-chart.git
